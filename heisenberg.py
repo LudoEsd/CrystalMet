@@ -86,24 +86,26 @@
 #@ $$$$ : Heisenberg.py
 #@ date : 25/03/2016
 #----------------------------------------------------#
+#import des bibliothèque nécessaire
+import os, re, socket, threading
 
-import os, re, socket
-
-#Initialisation de la variable Choix
+#Initialisation des variables globales
 choix=""
-#
+#Listes de toutes les possibilité d'input par l'utilisateur
 possibilite = ["","M","D","S","U","Q","m"]
 
 ##################################################################
 #DEFINITION DES FONCTIONS
 ##################################################################
 
+#fonction cls (clear) afin d'effacer le prompt avant l'affichage de chaque menu
 def cls():
+	 # Pour un OS M$ envoie de la commande cls pour un OS linux envoie de la commande clear
     os.system('cls' if os.name=='nt' else 'clear')
 
-#Affichage du menu principal
+#Fonction d'affichage du menu principal
 def menu_principal () :
-	cls()
+	cls() #Nettoyage du prompt
 	print ("Bienvenue dans le script du Command & Control du botnet Heisenberg")
 	print ("")
 	print ("------Menu Principal------")
@@ -114,6 +116,7 @@ def menu_principal () :
 	print ("Q : pour quitter le programme")
 	print ("------------------------------------------")
 
+#Fonction pour vérifier la saisi de l'adresse ip de l'utilisateur
 def is_valid_ipv4(ip):
     """Validates IPv4 addresses.
     """
@@ -153,7 +156,7 @@ def is_valid_ipv4(ip):
     """, re.VERBOSE | re.IGNORECASE)
     return pattern.match(ip) is not None
 
-
+#fonction pour valider la saisi de l'adresse ipV6
 def is_valid_ipv6(ip):
     """Validates IPv6 addresses.
     """
@@ -191,37 +194,51 @@ def is_valid_ip(ip):
     """
     return is_valid_ipv4(ip) or is_valid_ipv6(ip)
 
-#Affichage du menu DDOS
+#Fonction d'affichage du menu DDOS
 def menu_DDOS () :
-	cls()
+	cls() #Nettoyage du prompt
 	print "------Bienvenue dans le menu d'attaque DDOS------"
 	print "prèt pour lui en foutre plein la guele...\n"
 	
-	IP_ddos = raw_input("Saisir l'ip de la victime : \n")
+	#Saisi de l'adresse ip pour le DDOS
+	IP_ddos = raw_input("Saisir l'ip de la victime ou M pour revenir au menu principal: \n")
 	
+	#Si l'utilsateur tape M retour au menu principal
 	if IP_ddos == "M" or IP_victime =="m" :
 		print loop_input ()
-
+	#Vérification de la saisi de l'adresse IP
 	elif is_valid_ip(IP_ddos) == True :
 		print "l'adresse ip est correcte"
+
+		#Lancement de l'attaque
 		print "Lancement de l'attaque DDOS"
+
+	#Demander une nouvelle saisi pour l'adresse IP 	
 	else :
 		print "Erreur de saisi de l'adresse ip, resssayer : \n"
 
+#fonction d'affichage du menu pour le Reverse Shell
 def menu_Rshell () :
-	cls()
+	cls() #Nettoyage du prompt
 	print "------Bienvenue dans le menu Reverse Shell------"
 	print "prèt pour lui prendre la main...\n"
 	
-	IP_Rshell = raw_input("Saisir l'ip du zombie : \n")
+	#Saisi de l'utilisateur soit M ou l'adresse IP du zombie
+	IP_Rshell = raw_input("Saisir l'ip du zombie ou M pour revenir au menu principal : \n")
 	
+	#Retour au menu principal
 	if IP_Rshell == "M" or IP_Rshell =="m" :
 		print loop_input ()
 
+	#Vérification de la saisi de l'adresse IP
 	elif is_valid_ip(IP_Rshell) == True :
 		print "l'adresse ip est correcte"
+
+		#Lancement de l'attaque
 		print "Lancement du Reverse Shell"
+
 	else :
+		#Demander une nouvelle saisi pour l'adresse IP
 		print "Erreur de saisi de l'adresse ip, resssayer : \n"
 
 
@@ -236,42 +253,55 @@ def loop_input (choix) :
 		#Input utilisateurs sur son choix
 		choix = str.upper(raw_input("Saisir le menu désiré : \n"))
 
-		#
+		#Dans le cas où l'utilisateur tape rien
 		while choix == possibilite[0] :
 			print ("Rien n'a été saisi !")
 			choix = str.upper(raw_input("Saisir le menu désiré : \n"))
 			print menu_principal()
 
-		#
+		#Dans le cas où l'utilisateur tape M
 		while choix == possibilite[1] :
 			print ("Retour au menu principal")
 			print menu_principal()	
 
-		#
+		#Dans le cas où l'utilisateur tape D
 		while choix == possibilite[2] :
 			print ("Goo pour une attaque DDOS")
 			print menu_DDOS()
 
-		#
+		#Dans le cas où l'utilisateur tape S
 		while choix == possibilite[3] :
 			print ("Goo pour une shell sur un zombie")
 			print menu_Rshell()
 
-		#
+		#Dans le cas où l'utilisateur tape U
 		while choix == possibilite[4] :
 			print ("Goo pour mettre à jour le zombie")
 			print menu_upgrade()
 
-		#
+		#Dans le cas où l'utilisateur tape Q
 		if choix == possibilite[5] :
 			print ("tchaooo")
 			print ""
 			loop = 0
 	
-		#
+		#Pour toutes les autres possibilités on demande une nouvelle saisi
 		else:
 			print ("Erreur de saisi, essayer une nouvelle fois")
 			choix = str.upper(raw_input("Saisir le menu désiré : \n"))
+
+#Fonction principal du programme
+def main () :
+	# socket creation en écoute sur toutes les cartes réseau 0.0.0.0 sur le port 80
+	bind_ip = "" 
+	bind_port = 80  
+
+	print ("Création du Socket")
+	#Création du socket en ipv4 et TCP
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+	server.bind((bind_ip,bind_port))  
+	server.listen(5) 
+
 
 ######################################################################
 #Debut du programme
@@ -281,8 +311,9 @@ print ("#----------------------------------------------------#")
 print ("#@ Author : Mickey Bourne | Darko | HackerD0G")
 print ("#@ $$$$ : Heisenberg.py")
 print ("#@ date : 25/03/2016")
+print ("[*] Trojan ok - listening on %s:%d") %(bind_ip,bind_port)
 print ("#----------------------------------------------------#")
 
-os.system("/root/Documents/crystalmet/listener.py &")
+ 
 
 print loop_input(choix)
